@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "168454343427",
+    "project_id": "linkedin-84353",
+    "storage_bucket": "linkedin-84353.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:168454343427:android:be8370a4fbfe2951013736",
+        "android_client_info": {
+          "package_name": "com.example.linked_in"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDQH_aD0OwsF0LWjwluQbsWF6femOA5Tmc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
