@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:linked_in/views/auth/login_page.dart';
+import 'package:linked_in/views/home/profile_page.dart';
+import 'package:firebase_database/firebase_database.dart';
 
 class SignupPage extends StatefulWidget {
   @override
@@ -9,20 +11,28 @@ class SignupPage extends StatefulWidget {
 
 class _SignupPageState extends State<SignupPage> {
   final _formKey = GlobalKey<FormState>();
+  final _usernameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _usernameFocusNode = FocusNode();
   final _emailFocusNode = FocusNode();
   final _passwordFocusNode = FocusNode();
 
+  String? _usernameError;
   String? _emailError;
   String? _passwordError;
-  bool _obscurePassword = true; // To toggle password visibility
+  bool _obscurePassword = true;
 
   @override
   void initState() {
     super.initState();
 
-    // Add listeners to detect focus changes
+    _usernameFocusNode.addListener(() {
+      if (!_usernameFocusNode.hasFocus) {
+        _validateUsername(_usernameController.text);
+      }
+    });
+
     _emailFocusNode.addListener(() {
       if (!_emailFocusNode.hasFocus) {
         _validateEmail(_emailController.text);
@@ -38,50 +48,95 @@ class _SignupPageState extends State<SignupPage> {
 
   @override
   void dispose() {
+    _usernameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+    _usernameFocusNode.dispose();
     _emailFocusNode.dispose();
     _passwordFocusNode.dispose();
     super.dispose();
   }
 
+  void _validateUsername(String value) {
+    if (value.isEmpty) {
+      setState(() {
+        _usernameError = "Field is required.";
+      });
+    } else if (!RegExp(r"^[a-zA-Z\s]+$").hasMatch(value)) {
+      setState(() {
+        _usernameError = "Only alphabetic characters are allowed.";
+      });
+    } else {
+      setState(() {
+        _usernameError = null; // Clear error when valid
+      });
+    }
+  }
+
   void _validateEmail(String value) {
-    setState(() {
-      if (value.isEmpty) {
+    if (value.isEmpty) {
+      setState(() {
         _emailError = "Field is required.";
-      } else if (!RegExp(r'^[^@]+@[^@]+\.[^@]+$').hasMatch(value)) {
+      });
+    } else if (!RegExp(r'^[^@]+@[^@]+\.[^@]+$').hasMatch(value)) {
+      setState(() {
         _emailError = "Enter a valid email address.";
-      } else {
-        _emailError = null;
-      }
-    });
+      });
+    } else {
+      setState(() {
+        _emailError = null; // Clear error when valid
+      });
+    }
   }
 
   void _validatePassword(String value) {
-    setState(() {
-      if (value.isEmpty) {
+    if (value.isEmpty) {
+      setState(() {
         _passwordError = "Field is required.";
-      } else if (value.length < 6) {
+      });
+    } else if (value.length < 6) {
+      setState(() {
         _passwordError = "Password must be at least 6 characters.";
-      } else {
-        _passwordError = null;
-      }
-    });
+      });
+    } else {
+      setState(() {
+        _passwordError = null; // Clear error when valid
+      });
+    }
   }
 
-  Future<void> _signUp(BuildContext context) async {
+  void _signUp(BuildContext context) async {
     if (_formKey.currentState?.validate() ?? false) {
       try {
-        await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        // Create user with email and password
+        UserCredential userCredential =
+            await FirebaseAuth.instance.createUserWithEmailAndPassword(
           email: _emailController.text.trim(),
           password: _passwordController.text.trim(),
         );
+
+        // Get the user's unique ID
+        String uid = userCredential.user!.uid;
+
+        // Save additional user data in Realtime Database
+        DatabaseReference userRef =
+            FirebaseDatabase.instance.ref().child('users/$uid');
+        await userRef.set({
+          'username': _usernameController.text.trim(),
+          'email': _emailController.text.trim(),
+        });
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Sign up successful!")),
         );
+
+        // Navigate to Profile Page and pass the username
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => LoginPage()),
+          MaterialPageRoute(
+            builder: (context) =>
+                LoginPage(),
+          ),
         );
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -144,6 +199,17 @@ class _SignupPageState extends State<SignupPage> {
                                 ),
                               ),
                               SizedBox(height: screenHeight * 0.03),
+                              TextFormField(
+                                controller: _usernameController,
+                                focusNode: _usernameFocusNode,
+                                decoration: InputDecoration(
+                                  labelText: "Username",
+                                  border: OutlineInputBorder(),
+                                  errorText: _usernameError,
+                                ),
+                                onChanged: (value) => _validateUsername(value),
+                              ),
+                              SizedBox(height: screenHeight * 0.02),
                               TextFormField(
                                 controller: _emailController,
                                 focusNode: _emailFocusNode,
