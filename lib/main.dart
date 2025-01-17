@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:linked_in/views/home/profile_page.dart';
 import 'package:provider/provider.dart';
 import 'viewmodels/user_viewmodel.dart';
 import 'views/auth/signup_page.dart';

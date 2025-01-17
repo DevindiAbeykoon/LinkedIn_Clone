@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:linked_in/views/auth/signup_page.dart';
 import 'package:linked_in/views/home/home_page.dart';
+import 'package:linked_in/views/home/profile_page.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -82,7 +83,9 @@ class _LoginPageState extends State<LoginPage> {
         );
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => HomePage()),
+          MaterialPageRoute(
+            builder: (context) => HomePage(),
+          ),
         );
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
