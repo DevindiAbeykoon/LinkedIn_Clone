@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:linked_in/views/home/profile_page.dart';
 
 class HomePage extends StatelessWidget {
   @override
@@ -13,19 +14,24 @@ class HomePage extends StatelessWidget {
                 const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
             child: Row(
               children: [
-                // Profile Icon
-                CircleAvatar(
-                  radius: 20,
-                  backgroundImage: AssetImage('assets/images/profilepic.jpg'),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => ProfilePage()),
+                    );
+                  },
+                  child: CircleAvatar(
+                    radius: 20,
+                    backgroundImage: AssetImage('assets/images/profilepic.jpg'),
+                  ),
                 ),
                 SizedBox(width: 90),
-                // LinkedIn Logo
                 Image.asset(
                   'assets/images/Linkedin-Logo.png',
                   width: screenWidth * 0.25,
                 ),
                 Spacer(),
-                // Bell Icon
                 IconButton(
                   icon: Icon(Icons.notifications_outlined),
                   onPressed: () {},
@@ -33,7 +39,6 @@ class HomePage extends StatelessWidget {
               ],
             ),
           ),
-          // Search Bar
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: TextField(
@@ -51,7 +56,6 @@ class HomePage extends StatelessWidget {
             ),
           ),
           SizedBox(height: 10),
-          // Horizontal Profile Stories
           Container(
             height: 80,
             child: ListView.builder(
@@ -83,7 +87,6 @@ class HomePage extends StatelessWidget {
             ),
           ),
           SizedBox(height: 10),
-          // Sample Post
           Expanded(
             child: ListView(
               children: [
@@ -114,7 +117,6 @@ class HomePage extends StatelessWidget {
           ),
         ],
       ),
-      // Bottom Navigation Bar
       bottomNavigationBar: BottomNavigationBar(
         items: [
           BottomNavigationBarItem(
@@ -134,8 +136,8 @@ class HomePage extends StatelessWidget {
             label: 'Notifications',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.work),
-            label: 'Jobs',
+            icon: Icon(Icons.person_2_outlined),
+            label: 'Profile',
           ),
         ],
         selectedItemColor: Colors.blue,

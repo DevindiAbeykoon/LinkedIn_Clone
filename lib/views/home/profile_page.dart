@@ -1,11 +1,51 @@
-import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:linked_in/views/auth/login_page.dart'; // Ensure you have Firebase Auth imported
+import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter/material.dart';
+import 'package:linked_in/views/auth/login_page.dart';
+import 'package:linked_in/views/home/home_page.dart';
 
-class ProfilePage extends StatelessWidget {
-  final String username;
+class ProfilePage extends StatefulWidget {
+  @override
+  _ProfilePageState createState() => _ProfilePageState();
+}
 
-  ProfilePage({required this.username});
+class _ProfilePageState extends State<ProfilePage> {
+  String username = "Loading...";
+  int _currentIndex =
+      4;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchUsername();
+  }
+
+  void _fetchUsername() async {
+    try {
+      User? currentUser = FirebaseAuth.instance.currentUser;
+
+      if (currentUser != null) {
+        String uid = currentUser.uid;
+
+        DatabaseReference userRef =
+            FirebaseDatabase.instance.ref("users/$uid/username");
+
+        userRef.onValue.listen((event) {
+          setState(() {
+            username = event.snapshot.value.toString();
+          });
+        });
+      } else {
+        setState(() {
+          username = "Guest";
+        });
+      }
+    } catch (e) {
+      setState(() {
+        username = "Error loading username";
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,12 +73,7 @@ class ProfilePage extends StatelessWidget {
                   child: IconButton(
                     icon: Icon(Icons.logout, color: Colors.white),
                     onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => LoginPage(),
-                        ),
-                      );
+                      _logout(context);
                     },
                   ),
                 ),
@@ -47,8 +82,7 @@ class ProfilePage extends StatelessWidget {
                   left: MediaQuery.of(context).size.width / 2 - 50,
                   child: CircleAvatar(
                     radius: 50,
-                    backgroundImage: AssetImage(
-                        'assets/images/profilepic.jpg'), // Replace with your asset image path
+                    backgroundImage: AssetImage('assets/images/profilepic.jpg'),
                   ),
                 ),
               ],
@@ -58,7 +92,7 @@ class ProfilePage extends StatelessWidget {
               child: Column(
                 children: [
                   Text(
-                    username, // Display dynamic username
+                    username,
                     style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
@@ -150,6 +184,45 @@ class ProfilePage extends StatelessWidget {
           ],
         ),
       ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: (index) {
+          if (index == 0) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => HomePage()),
+            );
+          } else {
+            setState(() {
+              _currentIndex = index;
+            });
+          }
+        },
+        items: [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.group),
+            label: 'Network',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.add_box_rounded, size: 32),
+            label: '',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.notifications),
+            label: 'Notifications',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person_2_outlined),
+            label: 'Profile',
+          ),
+        ],
+        selectedItemColor: Colors.blue,
+        unselectedItemColor: Colors.grey,
+      ),
     );
   }
 
@@ -176,9 +249,11 @@ class ProfilePage extends StatelessWidget {
 
   void _logout(BuildContext context) async {
     try {
-      await FirebaseAuth.instance.signOut(); // Sign out the user
-      Navigator.pushReplacementNamed(
-          context, '/login'); // Navigate to login page
+      await FirebaseAuth.instance.signOut();
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => LoginPage()),
+      );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Logout failed: ${e.toString()}')),
