@@ -24,7 +24,6 @@ class _LoginPageState extends State<LoginPage> {
   void initState() {
     super.initState();
 
-    // Add listeners to detect focus changes
     _emailFocusNode.addListener(() {
       if (!_emailFocusNode.hasFocus) {
         _validateEmail(_emailController.text);
@@ -81,7 +80,7 @@ class _LoginPageState extends State<LoginPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Login successful!")),
         );
-        Navigator.push(
+        Navigator.pushReplacement(
           context,
           MaterialPageRoute(
             builder: (context) => HomePage(),

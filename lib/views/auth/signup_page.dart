@@ -68,7 +68,7 @@ class _SignupPageState extends State<SignupPage> {
       });
     } else {
       setState(() {
-        _usernameError = null; // Clear error when valid
+        _usernameError = null;
       });
     }
   }
@@ -84,7 +84,7 @@ class _SignupPageState extends State<SignupPage> {
       });
     } else {
       setState(() {
-        _emailError = null; // Clear error when valid
+        _emailError = null;
       });
     }
   }
@@ -100,7 +100,7 @@ class _SignupPageState extends State<SignupPage> {
       });
     } else {
       setState(() {
-        _passwordError = null; // Clear error when valid
+        _passwordError = null;
       });
     }
   }
@@ -108,17 +108,14 @@ class _SignupPageState extends State<SignupPage> {
   void _signUp(BuildContext context) async {
     if (_formKey.currentState?.validate() ?? false) {
       try {
-        // Create user with email and password
         UserCredential userCredential =
             await FirebaseAuth.instance.createUserWithEmailAndPassword(
           email: _emailController.text.trim(),
           password: _passwordController.text.trim(),
         );
 
-        // Get the user's unique ID
         String uid = userCredential.user!.uid;
 
-        // Save additional user data in Realtime Database
         DatabaseReference userRef =
             FirebaseDatabase.instance.ref().child('users/$uid');
         await userRef.set({
@@ -130,7 +127,6 @@ class _SignupPageState extends State<SignupPage> {
           SnackBar(content: Text("Sign up successful!")),
         );
 
-        // Navigate to Profile Page and pass the username
         Navigator.push(
           context,
           MaterialPageRoute(
